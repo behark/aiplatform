@@ -210,7 +210,13 @@ class SovereignAgentOrchestrator:
     async def process_request(self, agent_id: str, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
         """Process a request through a specific agent"""
         if agent_id not in self.agents:
-            return {"error": f"Agent {agent_id} not found"}
+            # Return a consistent error structure to avoid downstream validation issues
+            return {
+                "success": False,
+                "agent": agent_id,
+                "error": f"Agent {agent_id} not found",
+                "timestamp": datetime.now().isoformat()
+            }
         
         try:
             agent = self.agents[agent_id]
