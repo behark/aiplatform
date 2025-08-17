@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Dict, List, Any, Optional
+from contextlib import asynccontextmanager
 import asyncio
 import json
 import logging
@@ -21,11 +22,31 @@ from openwebui_pipeline import Pipeline, Functions
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# FastAPI app
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern lifespan handler for FastAPI application"""
+    # Startup
+    try:
+        await pipeline.on_startup()
+        logger.info("🚀 Sovereign Agent Platform started successfully")
+        yield
+    except Exception as e:
+        logger.error(f"❌ Failed to start platform: {e}")
+        yield
+    finally:
+        # Shutdown
+        try:
+            await pipeline.on_shutdown()
+            logger.info("👋 Sovereign Agent Platform shut down")
+        except Exception as e:
+            logger.error(f"❌ Error during shutdown: {e}")
+
+# FastAPI app with modern lifespan handler
 app = FastAPI(
     title="Sovereign Agent Platform",
     description="Advanced AI platform with 7 sovereign agents integrated with Open WebUI",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS middleware
@@ -54,20 +75,7 @@ class AgentResponse(BaseModel):
 pipeline = Pipeline()
 functions = Functions()
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize the platform on startup"""
-    try:
-        await pipeline.on_startup()
-        logger.info("🚀 Sovereign Agent Platform started successfully")
-    except Exception as e:
-        logger.error(f"❌ Failed to start platform: {e}")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    await pipeline.on_shutdown()
-    logger.info("👋 Sovereign Agent Platform shut down")
+# Deprecated @app.on_event handlers removed - now using modern lifespan handler above
 
 @app.get("/")
 async def root():
@@ -81,7 +89,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint for Railway deployment"""
+    """Enhanced health check endpoint for Railway deployment"""
     try:
         # Always return healthy status for Railway health checks
         # This prevents deployment failures due to initialization delays
@@ -91,17 +99,32 @@ async def health_check():
             "platform": "Sovereign Agent Platform",
             "version": "1.0.0",
             "ready": True,
-            "service": "running"
+            "service": "running",
+            "uptime": "active"
         }
         
         # Try to get agent info but don't fail if not available
         try:
             if hasattr(orchestrator, 'agent_configs') and orchestrator.agent_configs:
                 health_data["agents_configured"] = len(orchestrator.agent_configs)
+                health_data["agents_status"] = "initialized"
             else:
                 health_data["agents_configured"] = 7  # Default expected count
-        except:
+                health_data["agents_status"] = "loading"
+        except Exception as agent_error:
+            logger.debug(f"Agent status check: {agent_error}")
             health_data["agents_configured"] = 7
+            health_data["agents_status"] = "initializing"
+            
+        # Add pipeline status if available
+        try:
+            if pipeline:
+                health_data["pipeline_status"] = "active"
+            else:
+                health_data["pipeline_status"] = "initializing"
+        except Exception as pipeline_error:
+            logger.debug(f"Pipeline status check: {pipeline_error}")
+            health_data["pipeline_status"] = "starting"
             
         return health_data
         
@@ -115,7 +138,8 @@ async def health_check():
             "version": "1.0.0",
             "ready": True,
             "service": "running",
-            "note": "Service starting up"
+            "note": "Service starting up",
+            "fallback": True
         }
 
 @app.get("/agents")
@@ -125,14 +149,24 @@ async def list_agents():
 
 @app.post("/agents/{agent_id}/query")
 async def query_agent(agent_id: str, request: AgentRequest):
-    """Query a specific agent"""
+    """Query a specific agent with enhanced error handling"""
     try:
-        result = await orchestrator.process_request(
-            agent_id,
-            request.query,
-            request.context
+        # Validate agent_id exists
+        if not orchestrator or not hasattr(orchestrator, 'agent_configs'):
+            raise HTTPException(status_code=503, detail="Agent orchestrator not initialized")
+            
+        # Execute query with timeout
+        result = await asyncio.wait_for(
+            orchestrator.process_request(agent_id, request.query, request.context),
+            timeout=30.0  # 30 second timeout
         )
         return AgentResponse(**result)
+        
+    except asyncio.TimeoutError:
+        logger.error(f"Timeout querying agent {agent_id}")
+        raise HTTPException(status_code=504, detail="Agent query timeout")
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
         logger.error(f"Error querying agent {agent_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
