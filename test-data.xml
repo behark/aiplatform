@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="6" failures="0" skipped="0" tests="6" time="0.162" timestamp="2025-08-17T21:19:06.275586" hostname="behar-imac183"><testcase classname="" name="data.test_embeddings" time="0.000"><error message="collection failure">ImportError while importing test module '/home/behar/Desktop/New Folder/data/test_embeddings.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+data/test_embeddings.py:1: in &lt;module&gt;
+    import hypothesis.stateful
+E   ModuleNotFoundError: No module named 'hypothesis'</error></testcase><testcase classname="" name="governance.test_logsumexp" time="0.000"><error message="collection failure">ImportError while importing test module '/home/behar/Desktop/New Folder/governance/test_logsumexp.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+governance/test_logsumexp.py:5: in &lt;module&gt;
+    import numpy as np
+E   ModuleNotFoundError: No module named 'numpy'</error></testcase><testcase classname="" name="tests.test_agent" time="0.000"><error message="collection failure">ImportError while importing test module '/home/behar/Desktop/New Folder/tests/test_agent.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_agent.py:10: in &lt;module&gt;
+    from twisted.test import iosim
+E   ModuleNotFoundError: No module named 'twisted'</error></testcase><testcase classname="" name="tests.test_pipeline" time="0.000"><error message="collection failure">ImportError while importing test module '/home/behar/Desktop/New Folder/tests/test_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_pipeline.py:11: in &lt;module&gt;
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'</error></testcase><testcase classname="" name="tests.test_retrieval" time="0.000"><error message="collection failure">ImportError while importing test module '/home/behar/Desktop/New Folder/tests/test_retrieval.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_retrieval.py:6: in &lt;module&gt;
+    from referencing import Registry, Resource, exceptions
+E   ModuleNotFoundError: No module named 'referencing'</error></testcase><testcase classname="" name="tests.test_utils" time="0.000"><error message="collection failure">ImportError while importing test module '/home/behar/Desktop/New Folder/tests/test_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_utils.py:27: in &lt;module&gt;
+    from aiosignal import Signal
+E   ModuleNotFoundError: No module named 'aiosignal'</error></testcase></testsuite></testsuites>

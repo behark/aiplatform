@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  sovereign-platform:
+    build: .
+    environment:
+      - PORT=$PORT
+      - RAILWAY_STATIC_URL=$RAILWAY_STATIC_URL
+      - RAILWAY_GIT_COMMIT_SHA=$RAILWAY_GIT_COMMIT_SHA
+    volumes:
+      - ./sovereign_webui_pipeline.py:/app/sovereign_webui_pipeline.py

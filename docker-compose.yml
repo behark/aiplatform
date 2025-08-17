@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Your Sovereign Agent Platform
+  sovereign-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile.webui
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - OPENWEBUI_INTEGRATION=true
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Open WebUI Interface
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "8080:8080"
+    environment:
+      - WEBUI_AUTH=false
+      - ENABLE_RAG_WEB_SEARCH=true
+      - ENABLE_RAG_LOCAL_WEB_FETCH=true
+      - WEBUI_URL=http://0.0.0.0:8080
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - sovereign-platform
+    restart: unless-stopped
+
+  # Optional: Redis for caching (enhances performance)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  open-webui-data:
+  redis-data:
+
+networks:
+  default:
+    name: sovereign-network

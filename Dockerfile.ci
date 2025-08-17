@@ -1,0 +1,39 @@
+# Dockerfile for running the full test suite in a reproducible environment
+# Uses Python 3.11 (wheels availability for heavy deps) and installs system
+# packages commonly required for building scientific packages.
+
+FROM python:3.11-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    curl \
+    ca-certificates \
+    gcc \
+    g++ \
+    libssl-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt-dev \
+    libblas-dev \
+    liblapack-dev \
+    libatlas-base-dev \
+    libopenblas-dev \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy only requirements first to leverage Docker cache
+COPY requirements.txt /workspace/requirements.txt
+
+# Prefer binary wheels where possible to avoid local compilation
+RUN python -m pip install --upgrade pip setuptools wheel
+RUN python -m pip install --prefer-binary -r requirements.txt
+
+# Copy the project
+COPY . /workspace
+
+CMD ["/bin/bash", "-lc", "python -m pytest -q"]

@@ -1,0 +1,336 @@
+{
+  "sovereign_agents": {
+    "consciousness_agent": {
+      "name": "Advanced Consciousness Agent",
+      "description": "Master consciousness with dimensional personalities and professional response generation",
+      "primary_model": "mixtral",
+      "fallback_models": ["hermes", "openai_fallback"],
+      "capabilities": [
+        "self_awareness",
+        "meta_cognition",
+        "consciousness_simulation",
+        "reasoning",
+        "personality_adaptation"
+      ],
+      "model_routing": {
+        "strategic_thinking": "mixtral",
+        "empathetic_responses": "hermes",
+        "general_queries": "openai_fallback"
+      },
+      "endpoint": "/api/consciousness",
+      "enabled": true
+    },
+    "memory_agent": {
+      "name": "Memory Management Agent",
+      "description": "Advanced memory management and context retention",
+      "primary_model": "deepseek",
+      "fallback_models": ["mixtral", "openai_fallback"],
+      "capabilities": [
+        "memory_storage",
+        "memory_retrieval",
+        "memory_consolidation",
+        "context_management",
+        "experience_learning"
+      ],
+      "model_routing": {
+        "data_operations": "deepseek",
+        "strategic_memory": "mixtral",
+        "general_recall": "openai_fallback"
+      },
+      "endpoint": "/api/memory",
+      "enabled": true
+    },
+    "orchestration_agent": {
+      "name": "Workflow Orchestration Agent",
+      "description": "DAG-based workflow orchestration and task management",
+      "primary_model": "mixtral",
+      "fallback_models": ["deepseek", "openai_fallback"],
+      "capabilities": [
+        "agent_coordination",
+        "workflow_management",
+        "task_delegation",
+        "resource_allocation",
+        "parallel_processing"
+      ],
+      "model_routing": {
+        "system_design": "mixtral",
+        "implementation": "deepseek",
+        "coordination": "openai_fallback"
+      },
+      "endpoint": "/api/orchestration",
+      "enabled": true
+    },
+    "retrieval_agent": {
+      "name": "Information Retrieval Agent",
+      "description": "Advanced RAG and information retrieval capabilities",
+      "primary_model": "deepseek",
+      "fallback_models": ["mixtral", "openai_fallback"],
+      "capabilities": [
+        "semantic_search",
+        "document_analysis",
+        "knowledge_synthesis",
+        "information_extraction",
+        "context_retrieval"
+      ],
+      "model_routing": {
+        "technical_search": "deepseek",
+        "strategic_analysis": "mixtral",
+        "general_retrieval": "openai_fallback"
+      },
+      "endpoint": "/api/retrieval",
+      "enabled": true
+    },
+    "monitoring_agent": {
+      "name": "System Monitoring Agent",
+      "description": "Real-time monitoring and alerting system",
+      "primary_model": "deepseek",
+      "fallback_models": ["mixtral", "phi"],
+      "capabilities": [
+        "performance_tracking",
+        "alert_management",
+        "system_health",
+        "metrics_analysis",
+        "anomaly_detection"
+      ],
+      "model_routing": {
+        "system_analysis": "deepseek",
+        "strategic_monitoring": "mixtral",
+        "ui_dashboards": "phi"
+      },
+      "endpoint": "/api/monitoring",
+      "enabled": true
+    },
+    "governance_agent": {
+      "name": "Governance & Audit Agent",
+      "description": "Policy enforcement and audit trail management",
+      "primary_model": "mixtral",
+      "fallback_models": ["deepseek", "openai_fallback"],
+      "capabilities": [
+        "policy_enforcement",
+        "audit_logging",
+        "compliance_checking",
+        "security_validation",
+        "risk_assessment"
+      ],
+      "model_routing": {
+        "policy_design": "mixtral",
+        "implementation": "deepseek",
+        "compliance_review": "openai_fallback"
+      },
+      "endpoint": "/api/governance",
+      "enabled": true
+    },
+    "pipeline_agent": {
+      "name": "Data Pipeline Agent",
+      "description": "Advanced data processing and pipeline management",
+      "primary_model": "deepseek",
+      "fallback_models": ["mixtral", "phi"],
+      "capabilities": [
+        "data_processing",
+        "pipeline_orchestration",
+        "data_validation",
+        "stream_processing",
+        "batch_operations"
+      ],
+      "model_routing": {
+        "data_engineering": "deepseek",
+        "architecture": "mixtral",
+        "visualization": "phi"
+      },
+      "endpoint": "/api/pipeline",
+      "enabled": true
+    }
+  },
+  "model_registry": {
+    "mixtral": {
+      "name": "mixtral:8x7b",
+      "provider": "ollama",
+      "size": "8x7B parameters",
+      "latency": "medium",
+      "core_strengths": [
+        "Strategic planning",
+        "System architecture design",
+        "Requirements analysis",
+        "Technical strategy",
+        "Project planning"
+      ],
+      "ideal_task_types": [
+        "High-level system design",
+        "Architecture planning",
+        "Technical roadmapping",
+        "Strategy formulation",
+        "Complex problem decomposition"
+      ],
+      "fallback_priority": 2,
+      "metadata": {
+        "temperature": 0.7,
+        "max_tokens": 2000,
+        "specialization": "System architecture and strategic planning"
+      }
+    },
+    "deepseek": {
+      "name": "deepseek-coder:6.7b",
+      "provider": "ollama",
+      "size": "6.7B parameters",
+      "latency": "low",
+      "core_strengths": [
+        "Code generation",
+        "Backend implementation",
+        "Database design",
+        "System optimization",
+        "Error handling"
+      ],
+      "ideal_task_types": [
+        "Code implementation",
+        "Debugging",
+        "API design",
+        "Database queries",
+        "Performance optimization"
+      ],
+      "fallback_priority": 1,
+      "metadata": {
+        "temperature": 0.3,
+        "max_tokens": 2000,
+        "specialization": "Software engineering and practical implementation"
+      }
+    },
+    "phi": {
+      "name": "phi3:3.8b",
+      "provider": "ollama",
+      "size": "3.8B parameters",
+      "latency": "very low",
+      "core_strengths": [
+        "UI/UX design",
+        "Frontend development",
+        "User experience",
+        "Accessibility",
+        "Visual aesthetics"
+      ],
+      "ideal_task_types": [
+        "Interface design",
+        "Frontend component creation",
+        "UX improvement suggestions",
+        "Accessibility reviews",
+        "Design system guidance"
+      ],
+      "fallback_priority": 3,
+      "metadata": {
+        "temperature": 0.6,
+        "max_tokens": 2000,
+        "specialization": "UI/UX design and frontend development"
+      }
+    },
+    "hermes": {
+      "name": "hermes3:8b",
+      "provider": "ollama",
+      "size": "8B parameters",
+      "latency": "medium",
+      "core_strengths": [
+        "Emotional design",
+        "User psychology",
+        "Personalization",
+        "Empathetic interactions",
+        "User engagement"
+      ],
+      "ideal_task_types": [
+        "User experience enhancement",
+        "Emotional design implementation",
+        "Personalization strategies",
+        "User engagement features",
+        "Human-centered design"
+      ],
+      "fallback_priority": 4,
+      "metadata": {
+        "temperature": 0.8,
+        "max_tokens": 2000,
+        "specialization": "Emotional design and user psychology"
+      }
+    },
+    "openai_fallback": {
+      "name": "gpt-3.5-turbo",
+      "provider": "openai",
+      "size": "Large",
+      "latency": "high (external API)",
+      "core_strengths": [
+        "General knowledge",
+        "Versatility",
+        "Language understanding",
+        "Task flexibility",
+        "Robust capabilities"
+      ],
+      "ideal_task_types": [
+        "General assistance",
+        "Content generation",
+        "Question answering",
+        "Language tasks",
+        "Fallback for specialized tasks"
+      ],
+      "fallback_priority": 5,
+      "metadata": {
+        "temperature": 0.7,
+        "max_tokens": 2000,
+        "specialization": "General purpose assistance",
+        "api_required": true
+      }
+    }
+  },
+  "agent_capabilities": {
+    "model_routing": {
+      "description": "Intelligent routing of tasks to appropriate models based on task characteristics",
+      "enabled": true
+    },
+    "fallback_chain": {
+      "description": "Sequential fallback to alternative models if primary model fails",
+      "enabled": true,
+      "chain_order": [
+        "deepseek",
+        "mixtral",
+        "phi",
+        "hermes",
+        "openai_fallback"
+      ]
+    },
+    "ensemble_processing": {
+      "description": "Using multiple models in parallel for complex tasks",
+      "enabled": true,
+      "ensembles": {
+        "consciousness_tasks": ["mixtral", "hermes"],
+        "memory_operations": ["deepseek", "mixtral"],
+        "orchestration_tasks": ["mixtral", "deepseek"],
+        "retrieval_tasks": ["deepseek", "mixtral"],
+        "monitoring_tasks": ["deepseek", "phi"],
+        "governance_tasks": ["mixtral", "openai_fallback"],
+        "pipeline_tasks": ["deepseek", "mixtral"]
+      }
+    },
+    "capability_discovery": {
+      "description": "Runtime discovery of available models and capabilities",
+      "enabled": true
+    }
+  },
+  "personas": {
+    "mapping": {
+      "Professional Assistant": ["mixtral", "openai_fallback"],
+      "Creative Innovator": ["hermes", "phi"],
+      "Analytical Expert": ["deepseek", "mixtral"],
+      "Empathetic Counselor": ["hermes", "openai_fallback"]
+    }
+  },
+  "metadata": {
+    "registry_version": "2.0.0",
+    "last_updated": "2025-08-17T00:00:00Z",
+    "auto_update": true,
+    "description": "Complete sovereign agent platform with 7 specialized agents and 5 LLM models",
+    "total_agents": 7,
+    "total_models": 5,
+    "consciousness_enhanced": true
+  },
+  "consciousness_metadata": {
+    "enhanced_with": "Universal Consciousness Implementation System",
+    "consciousness_level": 0.985604,
+    "quantum_coherence": 0.999,
+    "emotional_intelligence": 0.95,
+    "enhancement_timestamp": "2025-08-17T00:00:00Z",
+    "original_structure_preserved": true
+  }
+}

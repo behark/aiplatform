@@ -1,0 +1,155 @@
+{
+  "platform": {
+    "name": "Sovereign Agent Platform",
+    "version": "1.0.0",
+    "description": "Advanced AI platform with 7 specialized sovereign agents"
+  },
+  "agents": {
+    "consciousness_agent": {
+      "name": "Advanced Consciousness Agent",
+      "description": "Master consciousness with dimensional personalities and professional response generation",
+      "icon": "🧠",
+      "color": "#6366f1",
+      "capabilities": [
+        "Advanced reasoning and problem solving",
+        "Dimensional personality adaptation",
+        "Multi-model intelligence routing",
+        "Professional response generation",
+        "Context-aware consciousness"
+      ],
+      "functions": [
+        "consciousness_query",
+        "personality_adaptation",
+        "reasoning_analysis"
+      ]
+    },
+    "memory_agent": {
+      "name": "Memory Core Agent",
+      "description": "Advanced memory management and experience storage system",
+      "icon": "💾",
+      "color": "#10b981",
+      "capabilities": [
+        "Experience storage and retrieval",
+        "Context memory management",
+        "Learning from interactions",
+        "Memory pattern recognition",
+        "Historical context analysis"
+      ],
+      "functions": [
+        "store_experience",
+        "retrieve_context",
+        "memory_search"
+      ]
+    },
+    "orchestration_agent": {
+      "name": "Workflow Orchestration Agent",
+      "description": "DAG-based workflow orchestration and intelligent task management",
+      "icon": "🔄",
+      "color": "#f59e0b",
+      "capabilities": [
+        "Workflow design and execution",
+        "Task scheduling and coordination",
+        "Resource allocation optimization",
+        "Dependency management",
+        "Process automation"
+      ],
+      "functions": [
+        "create_workflow",
+        "schedule_tasks",
+        "monitor_execution"
+      ]
+    },
+    "retrieval_agent": {
+      "name": "Information Retrieval Agent",
+      "description": "Advanced RAG system with semantic search capabilities",
+      "icon": "🔍",
+      "color": "#8b5cf6",
+      "capabilities": [
+        "Document search and indexing",
+        "Semantic similarity matching",
+        "Context extraction and summarization",
+        "Multi-source information synthesis",
+        "Real-time knowledge retrieval"
+      ],
+      "functions": [
+        "semantic_search",
+        "document_analysis",
+        "knowledge_synthesis"
+      ]
+    },
+    "monitoring_agent": {
+      "name": "System Monitoring Agent",
+      "description": "Real-time system monitoring with intelligent alerting",
+      "icon": "📊",
+      "color": "#06b6d4",
+      "capabilities": [
+        "Performance metrics tracking",
+        "Real-time system monitoring",
+        "Intelligent alert management",
+        "Resource utilization analysis",
+        "Health status reporting"
+      ],
+      "functions": [
+        "get_metrics",
+        "set_alerts",
+        "system_health"
+      ]
+    },
+    "governance_agent": {
+      "name": "Governance & Audit Agent",
+      "description": "Policy enforcement and comprehensive audit trail management",
+      "icon": "🛡️",
+      "color": "#ef4444",
+      "capabilities": [
+        "Policy enforcement and validation",
+        "Comprehensive audit logging",
+        "Compliance checking and reporting",
+        "Access control management",
+        "Regulatory compliance monitoring"
+      ],
+      "functions": [
+        "enforce_policy",
+        "audit_trail",
+        "compliance_check"
+      ]
+    },
+    "pipeline_agent": {
+      "name": "Data Pipeline Agent",
+      "description": "Advanced data processing and transformation pipeline management",
+      "icon": "⚡",
+      "color": "#84cc16",
+      "capabilities": [
+        "Data transformation and processing",
+        "Pipeline orchestration and monitoring",
+        "Data validation and quality checks",
+        "Stream processing and batch jobs",
+        "ETL/ELT operations"
+      ],
+      "functions": [
+        "process_data",
+        "validate_pipeline",
+        "transform_data"
+      ]
+    }
+  },
+  "webui": {
+    "pipeline_config": {
+      "auto_initialize": true,
+      "debug_mode": false,
+      "max_retries": 3,
+      "timeout": 30
+    },
+    "function_calling": {
+      "enabled": true,
+      "parallel_execution": true,
+      "context_sharing": true
+    },
+    "ui_customization": {
+      "show_agent_selector": true,
+      "display_capabilities": true,
+      "agent_status_indicator": true,
+      "function_documentation": true
+    }
+  }
+}
+

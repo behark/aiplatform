@@ -1,0 +1,16 @@
+Collecting adbc-driver-postgresql
+  Downloading adbc_driver_postgresql-1.7.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.0 kB)
+Collecting adbc-driver-manager (from adbc-driver-postgresql)
+  Downloading adbc_driver_manager-1.7.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB)
+Collecting importlib-resources>=1.3 (from adbc-driver-postgresql)
+  Using cached importlib_resources-6.5.2-py3-none-any.whl.metadata (3.9 kB)
+Collecting typing-extensions (from adbc-driver-manager->adbc-driver-postgresql)
+  Using cached typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+Downloading adbc_driver_postgresql-1.7.0-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.9/2.9 MB 4.8 MB/s eta 0:00:00
+Using cached importlib_resources-6.5.2-py3-none-any.whl (37 kB)
+Downloading adbc_driver_manager-1.7.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 5.8 MB/s eta 0:00:00
+Using cached typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+Installing collected packages: typing-extensions, importlib-resources, adbc-driver-manager, adbc-driver-postgresql
+Successfully installed adbc-driver-manager-1.7.0 adbc-driver-postgresql-1.7.0 importlib-resources-6.5.2 typing-extensions-4.14.1

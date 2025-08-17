@@ -1,0 +1,37 @@
+# Core FastAPI dependencies
+fastapi>=0.116.1
+uvicorn[standard]>=0.35.0
+pydantic>=2.11.7
+python-multipart>=0.0.20
+websockets>=15.0.1
+python-dotenv>=1.1.1
+pyyaml>=6.0.2
+requests>=2.32.4
+aiofiles>=24.1.0
+structlog>=25.4.0
+
+# AI and LangChain dependencies
+langchain>=0.3.27
+langchain-core>=0.3.74
+langchain-community>=0.3.27
+langsmith>=0.4.14
+tenacity>=9.1.2
+
+# Data processing (lightweight versions for Railway)
+numpy>=2.3.2
+pandas>=2.3.1
+
+# HTTP and networking
+httpx>=0.28.1
+aiohttp>=3.12.15
+
+# Utilities
+typing-extensions>=4.14.1
+orjson>=3.11.2
+zstandard>=0.24.0
+jsonpatch>=1.33
+packaging>=25.0
+
+# OpenAI and Anthropic (optional, only if needed)
+# openai>=1.99.9
+# anthropic>=0.64.0
