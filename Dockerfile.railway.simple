@@ -1,0 +1,64 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install only essential system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy ultra-minimal requirements and install
+COPY requirements.railway.minimal.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && rm -rf /root/.cache/pip
+
+# Install OpenWebUI with no dependencies
+RUN pip install --no-cache-dir --no-deps open-webui==0.3.32
+
+# Copy only essential files
+COPY main.py .
+COPY webui_integration.py .
+
+# Create minimal src structure
+RUN mkdir -p src config
+COPY src/mock_implementations.py src/
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV WEBUI_AUTH=false
+
+# Expose Railway port
+EXPOSE 8080
+
+# Create optimized startup script
+RUN echo '#!/bin/bash\n\
+echo "Starting Sovereign Agent Platform..."\n\
+\n\
+# Start backend with health check\n\
+python main.py &\n\
+BACKEND_PID=$!\n\
+\n\
+# Wait for backend to be healthy\n\
+echo "Waiting for backend..."\n\
+for i in {1..30}; do\n\
+  if curl -f http://localhost:8000/health 2>/dev/null; then\n\
+    break\n\
+  fi\n\
+  sleep 2\n\
+done\n\
+\n\
+# Railway automatically sets PORT - use it or default to 8080\n\
+WEBUI_PORT=${PORT:-8080}\n\
+echo "Starting OpenWebUI on port $WEBUI_PORT"\n\
+\n\
+# Start OpenWebUI with backend connection\n\
+OLLAMA_BASE_URL=http://localhost:8000 \\\n\
+WEBUI_SECRET_KEY=railway-deployment \\\n\
+open-webui serve --host 0.0.0.0 --port $WEBUI_PORT\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+CMD ["bash", "/app/start.sh"]

@@ -1,0 +1,39 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies including Node.js for frontend assets
+RUN apt-get update && apt-get install -y \
+    curl \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.railway.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy all application files
+COPY main.py .
+COPY webui_integration.py .
+COPY openwebui_pipeline.py .
+COPY simple_frontend.js .
+COPY src/ ./src/
+COPY config/ ./config/
+
+# Set environment variables for Railway
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV RAILWAY_ENVIRONMENT_NAME=production
+
+# Expose port (Railway will set PORT env var)
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Run main.py which now serves the frontend interface
+CMD ["python", "main.py"]

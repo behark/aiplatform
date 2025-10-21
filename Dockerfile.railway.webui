@@ -1,0 +1,86 @@
+FROM node:18-slim as webui-builder
+
+# Install OpenWebUI dependencies
+WORKDIR /webui
+RUN apt-get update && apt-get install -y git python3 python3-pip
+RUN git clone https://github.com/open-webui/open-webui.git .
+RUN npm install && npm run build
+
+# Production stage
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python requirements and install
+COPY requirements.railway.txt requirements.txt
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application files
+COPY main.py .
+COPY webui_integration.py .
+COPY openwebui_pipeline.py .
+COPY sovereign_webui_pipeline.py .
+COPY src/ ./src/
+COPY config/ ./config/
+
+# Copy built WebUI from previous stage
+COPY --from=webui-builder /webui/build /app/webui
+
+# Setup nginx to serve WebUI and proxy API
+RUN echo 'server {\n\
+    listen $PORT;\n\
+    server_name _;\n\
+    \n\
+    # Serve WebUI static files\n\
+    location / {\n\
+        root /app/webui;\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+    \n\
+    # Proxy API requests to backend\n\
+    location /api/ {\n\
+        proxy_pass http://localhost:8000/;\n\
+        proxy_set_header Host $host;\n\
+        proxy_set_header X-Real-IP $remote_addr;\n\
+    }\n\
+    \n\
+    # WebSocket support\n\
+    location /ws {\n\
+        proxy_pass http://localhost:8000/ws;\n\
+        proxy_http_version 1.1;\n\
+        proxy_set_header Upgrade $http_upgrade;\n\
+        proxy_set_header Connection "upgrade";\n\
+    }\n\
+}' > /etc/nginx/sites-available/default
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 8080
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+# Replace $PORT in nginx config\n\
+envsubst < /etc/nginx/sites-available/default > /etc/nginx/sites-enabled/default\n\
+\n\
+# Start backend\n\
+python main.py &\n\
+\n\
+# Wait for backend\n\
+sleep 5\n\
+\n\
+# Start nginx\n\
+nginx -g "daemon off;"\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]

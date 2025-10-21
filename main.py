@@ -2,21 +2,23 @@
 Main FastAPI application for Sovereign Agent Platform with Open WebUI integration
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, JSONResponse, RedirectResponse
-from pydantic import BaseModel
-from typing import Dict, List, Any, Optional
-from contextlib import asynccontextmanager
 import asyncio
 import json
 import logging
-import uvicorn
-from datetime import datetime
 import os
+from contextlib import asynccontextmanager
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from webui_integration import orchestrator, initialize_platform
-from openwebui_pipeline import Pipeline, Functions
+import uvicorn
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import (HTMLResponse, JSONResponse, RedirectResponse,
+                               StreamingResponse)
+from pydantic import BaseModel
+
+from openwebui_pipeline import Functions, Pipeline
+from webui_integration import initialize_platform, orchestrator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -79,16 +81,34 @@ functions = Functions()
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
-    webui_url = os.environ.get("WEBUI_URL", "http://localhost:8080")
-    return {
-        "message": "Sovereign Agent Platform",
-        "status": "active",
-        "agents": len(orchestrator.agent_configs),
-        "version": "1.0.0",
-        "webui_url": webui_url,
-        "hint": "Open the WebUI at webui_url or GET /ui to be redirected"
-    }
+    """Root endpoint - for Railway with OpenWebUI, redirect to API info"""
+    # For Railway deployment with OpenWebUI, just return API info
+    if os.environ.get("RAILWAY_ENVIRONMENT_NAME"):
+        webui_url = os.environ.get("WEBUI_URL", "http://localhost:8080")
+        return {
+            "message": "🚀 Sovereign Agent Platform Backend",
+            "status": "operational",
+            "agents": len(orchestrator.agent_configs) if orchestrator else 7,
+            "version": "1.0.0",
+            "webui_url": webui_url,
+            "endpoints": {
+                "health": "/health",
+                "agents": "/agents",
+                "pipeline": "/pipeline/process"
+            },
+            "note": "Frontend is served by OpenWebUI on the main domain"
+        }
+    else:
+        # For local development, return JSON status
+        webui_url = os.environ.get("WEBUI_URL", "http://localhost:8080")
+        return {
+            "message": "Sovereign Agent Platform",
+            "status": "active",
+            "agents": len(orchestrator.agent_configs),
+            "version": "1.0.0",
+            "webui_url": webui_url,
+            "hint": "Open the WebUI at webui_url or GET /ui to be redirected"
+        }
 
 @app.get("/health")
 async def health_check():
@@ -160,9 +180,25 @@ async def query_agent(agent_id: str, request: AgentRequest):
             
         # Execute query with timeout
         result = await asyncio.wait_for(
-            orchestrator.process_request(agent_id, request.query, request.context),
+            orchestrator.process_request(agent_id, request.query, request.context or {}),
             timeout=30.0  # 30 second timeout
         )
+        
+        # Ensure response has required fields for AgentResponse
+        if not isinstance(result, dict):
+            result = {
+                "success": True,
+                "agent": agent_id,
+                "response": str(result),
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            # Fill missing required fields
+            result.setdefault("success", True)
+            result.setdefault("agent", agent_id)
+            result.setdefault("response", result.get("message", "No response"))
+            result.setdefault("timestamp", datetime.now().isoformat())
+            
         return AgentResponse(**result)
         
     except asyncio.TimeoutError:
@@ -177,7 +213,7 @@ async def query_agent(agent_id: str, request: AgentRequest):
 @app.post("/consciousness/query")
 async def consciousness_query(request: AgentRequest):
     """Query the consciousness agent specifically"""
-    return await functions.consciousness_query(request.query, request.context)
+    return await functions.consciousness_query(request.query, request.context or {})
 
 @app.post("/memory/operation")
 async def memory_operation(operation: str, data: Dict[str, Any] = {}):
@@ -230,6 +266,115 @@ async def webui_pipeline(body: Dict[str, Any]):
 async def redirect_to_webui():
     webui_url = os.environ.get("WEBUI_URL", "http://localhost:8080")
     return RedirectResponse(url=webui_url, status_code=307)
+
+@app.get("/chat", response_class=HTMLResponse)
+async def chat_page():
+        """Minimal in-app chat UI that talks to the /pipeline endpoint."""
+        html = """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Sovereign Agent Chat</title>
+            <style>
+                :root { --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#22c55e; }
+                body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+                .wrap { max-width:900px; margin:0 auto; padding:24px; }
+                h1 { font-size:20px; margin:0 0 16px; display:flex; align-items:center; gap:10px; }
+                .card { background:var(--panel); border:1px solid #1f2937; border-radius:12px; overflow:hidden; }
+                .toolbar { display:flex; gap:12px; padding:12px; border-bottom:1px solid #1f2937; align-items:center; }
+                .toolbar input, .toolbar select { background:#0b1220; color:var(--text); border:1px solid #1f2937; border-radius:8px; padding:8px 10px; }
+                .toolbar button { background:var(--accent); color:#052e14; border:none; border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; }
+                .log { padding:16px; height:55vh; overflow:auto; display:flex; flex-direction:column; gap:12px; }
+                .msg { padding:12px 14px; border-radius:10px; max-width:85%; white-space:pre-wrap; }
+                .user { background:#0b1220; align-self:flex-end; border:1px solid #1f2937; }
+                .bot { background:#0f1a2d; align-self:flex-start; border:1px solid #1f2937; }
+                .muted { color:var(--muted); font-size:12px; }
+                .input { display:flex; gap:10px; padding:12px; border-top:1px solid #1f2937; }
+                .input textarea { flex:1; resize:vertical; min-height:44px; max-height:160px; background:#0b1220; color:var(--text); border:1px solid #1f2937; border-radius:10px; padding:10px; }
+                .input button { background:var(--accent); color:#052e14; border:none; border-radius:10px; padding:10px 16px; font-weight:700; cursor:pointer; }
+            </style>
+        </head>
+        <body>
+            <div class="wrap">
+                <h1>🧠 Sovereign Agent Platform — Chat</h1>
+                <div class="card">
+                    <div class="toolbar">
+                        <label class="muted">Model</label>
+                        <select id="model">
+                            <option value="mixtral">mixtral</option>
+                            <option value="deepseek">deepseek</option>
+                            <option value="phi">phi</option>
+                        </select>
+                        <span class="muted">Agent</span>
+                        <select id="agent">
+                            <option value="consciousness_agent">consciousness_agent</option>
+                            <option value="retrieval_agent">retrieval_agent</option>
+                            <option value="memory_agent">memory_agent</option>
+                            <option value="orchestration_agent">orchestration_agent</option>
+                            <option value="monitoring_agent">monitoring_agent</option>
+                            <option value="governance_agent">governance_agent</option>
+                            <option value="pipeline_agent">pipeline_agent</option>
+                        </select>
+                        <span class="muted" id="status"></span>
+                    </div>
+                    <div id="log" class="log"></div>
+                    <form id="composer" class="input">
+                        <textarea id="text" placeholder="Type your message and press Send..."></textarea>
+                        <button type="submit">Send</button>
+                    </form>
+                </div>
+            </div>
+            <script>
+                const el = (id) => document.getElementById(id);
+                const log = el('log');
+                const status = el('status');
+                const messages = [];
+
+                function push(role, content) {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+                    bubble.textContent = content;
+                    log.appendChild(bubble);
+                    log.scrollTop = log.scrollHeight;
+                    messages.push({ role, content });
+                }
+
+                async function sendMessage(text) {
+                    const model = el('model').value;
+                    const agent = el('agent').value; // preserved for context if needed later
+                    status.textContent = 'Processing...';
+                    try {
+                        const body = { user: text, model: model, messages: messages };
+                        const res = await fetch('/pipeline', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(body)
+                        });
+                        const data = await res.json();
+                        const reply = (data && (data.response?.text || data.response || data.message)) || 'No response';
+                        push('assistant', String(reply));
+                    } catch (e) {
+                        push('assistant', 'Error: ' + (e?.message || e));
+                    } finally {
+                        status.textContent = '';
+                    }
+                }
+
+                el('composer').addEventListener('submit', (ev) => {
+                    ev.preventDefault();
+                    const text = el('text').value.trim();
+                    if (!text) return;
+                    el('text').value = '';
+                    push('user', text);
+                    sendMessage(text);
+                });
+            </script>
+        </body>
+        </html>
+        """
+        return HTMLResponse(html)
 
 if __name__ == "__main__":
     # Get port from environment with Railway compatibility

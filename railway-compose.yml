@@ -1,10 +1,38 @@
 version: '3.8'
 services:
   sovereign-platform:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.railway
     environment:
-      - PORT=$PORT
+      - PORT=8000
       - RAILWAY_STATIC_URL=$RAILWAY_STATIC_URL
       - RAILWAY_GIT_COMMIT_SHA=$RAILWAY_GIT_COMMIT_SHA
     volumes:
       - ./sovereign_webui_pipeline.py:/app/sovereign_webui_pipeline.py
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "8080:8080"
+    environment:
+      - WEBUI_AUTH=false
+      - ENABLE_RAG_WEB_SEARCH=true
+      - ENABLE_RAG_LOCAL_WEB_FETCH=true
+      - API_SERVER_URL=http://sovereign-platform:8000
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      sovereign-platform:
+        condition: service_healthy
+
+volumes:
+  open-webui-data:

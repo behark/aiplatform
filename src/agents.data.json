@@ -165,6 +165,9 @@
       "metadata": {
         "temperature": 0.7,
         "max_tokens": 2000,
+        "context_window": 32768,
+        "context_size": 32768,
+        "aliases": ["mixtral:8x7b", "ollama/mixtral:8x7b"],
         "specialization": "System architecture and strategic planning"
       }
     },
@@ -191,6 +194,9 @@
       "metadata": {
         "temperature": 0.3,
         "max_tokens": 2000,
+        "context_window": 16384,
+        "context_size": 16384,
+        "aliases": ["deepseek-coder:6.7b", "ollama/deepseek-coder:6.7b"],
         "specialization": "Software engineering and practical implementation"
       }
     },
@@ -217,6 +223,9 @@
       "metadata": {
         "temperature": 0.6,
         "max_tokens": 2000,
+        "context_window": 8192,
+        "context_size": 8192,
+        "aliases": ["phi3:3.8b", "ollama/phi3:3.8b"],
         "specialization": "UI/UX design and frontend development"
       }
     },
@@ -243,6 +252,9 @@
       "metadata": {
         "temperature": 0.8,
         "max_tokens": 2000,
+        "context_window": 8192,
+        "context_size": 8192,
+        "aliases": ["hermes3:8b", "ollama/hermes3:8b"],
         "specialization": "Emotional design and user psychology"
       }
     },
@@ -269,8 +281,36 @@
       "metadata": {
         "temperature": 0.7,
         "max_tokens": 2000,
+        "context_window": 16385,
+        "context_size": 16385,
+        "aliases": ["gpt-3.5-turbo", "openai/gpt-3.5-turbo"],
         "specialization": "General purpose assistance",
         "api_required": true
+      }
+    },
+    "deepseek_coder_33b": {
+      "name": "deepseek-coder:33b",
+      "provider": "ollama",
+      "size": "33B parameters",
+      "latency": "medium",
+      "core_strengths": [
+        "Large-context code generation",
+        "Complex reasoning",
+        "Multi-file understanding"
+      ],
+      "ideal_task_types": [
+        "Large project code generation",
+        "Refactoring with long context",
+        "Complex API implementation"
+      ],
+      "fallback_priority": 1,
+      "metadata": {
+        "temperature": 0.2,
+        "max_tokens": 2000,
+        "context_window": 16384,
+        "context_size": 16384,
+        "aliases": ["deepseek-coder:33b", "ollama/deepseek-coder:33b"],
+        "specialization": "High-parameter code generation"
       }
     }
   },

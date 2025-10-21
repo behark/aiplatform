@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Your Sovereign Agent Platform Backend
+  sovereign-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.railway
+    environment:
+      - PYTHONPATH=/app
+      - OPENWEBUI_INTEGRATION=true
+      - LOG_LEVEL=INFO
+      - PUBLIC_DEPLOYMENT=true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sovereign-network
+
+  # Open WebUI Frontend (This will be the main public interface)
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "$PORT:8080"
+    environment:
+      - WEBUI_AUTH=false
+      - ENABLE_RAG_WEB_SEARCH=true
+      - ENABLE_RAG_LOCAL_WEB_FETCH=true
+      - WEBUI_URL=http://0.0.0.0:8080
+      - OLLAMA_BASE_URL=http://sovereign-backend:8000
+      - ENABLE_COMMUNITY_SHARING=true
+      - WEBUI_NAME="Sovereign Agent Platform"
+      - DEFAULT_MODELS=consciousness,retrieval,monitoring,orchestration,pipeline,governance,memory
+    volumes:
+      - open-webui-data:/app/backend/data
+      - ./sovereign_webui_pipeline.py:/app/backend/pipelines/sovereign_webui_pipeline.py
+    depends_on:
+      - sovereign-backend
+    restart: unless-stopped
+    networks:
+      - sovereign-network
+
+networks:
+  sovereign-network:
+    driver: bridge
+
+volumes:
+  open-webui-data:
